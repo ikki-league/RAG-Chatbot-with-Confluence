@@ -20,9 +20,6 @@ class DataLoader():
         space_key=CONFLUENCE_SPACE_KEY,
         persist_directory=PERSIST_DIRECTORY
     ):
-
-        print("DataLoader")
-        print(confluence_url)
         self.confluence_url = confluence_url
         self.username = username
         self.api_key = api_key

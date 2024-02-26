@@ -2,7 +2,7 @@
 if __name__ == '__main__':
     from help_desk import HelpDesk
 
-    model = HelpDesk(new_db=True)
+    model = HelpDesk(new_db=False)
 
     print(model.db._collection.count())
 

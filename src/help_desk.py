@@ -1,10 +1,12 @@
 import sys
 import load_db
 import collections
-from langchain.llms import OpenAI
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.llms import Ollama
+from langchain.callbacks.manager import CallbackManager
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain.embeddings import OllamaEmbeddings
 
 
 class HelpDesk():
@@ -31,7 +33,6 @@ class HelpDesk():
         Given this text extracts:
         -----
         {context}
-        at the end of the text, please add "voili voilou"
         -----
         Please answer with to the following question:
         Question: {question}
@@ -44,14 +45,16 @@ class HelpDesk():
             template=self.template,
             input_variables=["context", "question"]
         )
+        print("Prompt: ", prompt)
         return prompt
 
-    def get_embeddings(self) -> OpenAIEmbeddings:
-        embeddings = OpenAIEmbeddings()
+    def get_embeddings(self) -> OllamaEmbeddings:
+        embeddings = OllamaEmbeddings(model="mistral")
         return embeddings
 
     def get_llm(self):
-        llm = OpenAI()
+        llm = Ollama(  model="mistral",
+                    callback_manager = CallbackManager([StreamingStdOutCallbackHandler()]))
         return llm
 
     def get_retrieval_qa(self):
@@ -63,6 +66,7 @@ class HelpDesk():
             return_source_documents=True,
             chain_type_kwargs=chain_type_kwargs
         )
+        print("QA: ", qa)
         return qa
 
     def retrieval_qa_inference(self, question, verbose=True):
