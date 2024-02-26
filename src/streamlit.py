@@ -14,7 +14,7 @@ def get_model():
     model = HelpDesk(new_db=True)
     return model
 
-
+print("Loading model...")
 model = get_model()
 
 # Streamlit

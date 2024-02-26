@@ -31,6 +31,7 @@ class HelpDesk():
         Given this text extracts:
         -----
         {context}
+        at the end of the text, please add "voili voilou"
         -----
         Please answer with to the following question:
         Question: {question}

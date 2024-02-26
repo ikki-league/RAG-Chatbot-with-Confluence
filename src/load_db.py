@@ -3,7 +3,7 @@ import logging
 import shutil
 
 sys.path.append('../')
-from config import (CONFLUENCE_SPACE_NAME, CONFLUENCE_SPACE_KEY,
+from config import (CONFLUENCE_SPACE_URL, CONFLUENCE_SPACE_KEY,
                     CONFLUENCE_USERNAME, CONFLUENCE_API_KEY, PERSIST_DIRECTORY)
 
 from langchain.document_loaders import ConfluenceLoader
@@ -14,13 +14,15 @@ class DataLoader():
     """Create, load, save the DB using the confluence Loader"""
     def __init__(
         self,
-        confluence_url=CONFLUENCE_SPACE_NAME,
+        confluence_url=CONFLUENCE_SPACE_URL,
         username=CONFLUENCE_USERNAME,
         api_key=CONFLUENCE_API_KEY,
         space_key=CONFLUENCE_SPACE_KEY,
         persist_directory=PERSIST_DIRECTORY
     ):
 
+        print("DataLoader")
+        print(confluence_url)
         self.confluence_url = confluence_url
         self.username = username
         self.api_key = api_key
@@ -62,8 +64,8 @@ class DataLoader():
         # RecursiveTextSplitter
         # Chunk size big enough
         splitter = RecursiveCharacterTextSplitter(
-            chunk_size=512,
-            chunk_overlap=20,
+            chunk_size=1024,
+            chunk_overlap=50,
             separators=["\n\n", "\n", "(?<=\. )", " ", ""]
         )
 
