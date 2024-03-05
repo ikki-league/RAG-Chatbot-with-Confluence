@@ -10,7 +10,8 @@ _ = load_dotenv(find_dotenv())
 
 OPEN_AI_API_KEY = os.environ['OPENAI_API_KEY']
 
-CONFLUENCE_SPACE_NAME = os.environ['CONFLUENCE_SPACE_NAME']  # Change to your space name
+CONFLUENCE_SPACE_NAME = os.environ['CONFLUENCE_SPACE_NAME']  #
+CONFLUENCE_SPACE_URL = os.environ['CONFLUENCE_SPACE_URL']  # Change to your space name
 CONFLUENCE_API_KEY = os.environ['CONFLUENCE_PRIVATE_API_KEY']
 # https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
 CONFLUENCE_SPACE_KEY = os.environ['CONFLUENCE_SPACE_KEY']
