@@ -22,7 +22,7 @@
   - Create and feed your API key [here]('https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/')
   - Insert in the  `env` file:
     -  the space_key: `https://yoursite.atlassian.com/wiki/spaces/<space_key>/pages/`
-    -  the space_name: `<space_name>/spaces/<space_key>/pages/`
+    -  the space_url: `https://yoursite.atlassian.com/wiki`
     -  the email adress you used for your Confluence space
     -  the OpenAI API key
 
