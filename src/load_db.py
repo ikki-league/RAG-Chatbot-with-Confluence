@@ -2,23 +2,32 @@ import sys
 import logging
 import shutil
 
-sys.path.append('../')
-from config import (CONFLUENCE_SPACE_URL, CONFLUENCE_SPACE_KEY,
-                    CONFLUENCE_USERNAME, CONFLUENCE_API_KEY, PERSIST_DIRECTORY)
+sys.path.append("../")
+from config import (
+    CONFLUENCE_SPACE_URL,
+    CONFLUENCE_SPACE_KEY,
+    CONFLUENCE_USERNAME,
+    CONFLUENCE_API_KEY,
+    PERSIST_DIRECTORY,
+)
+from langchain_community.document_transformers import DoctranTextTranslator
+from langchain_core.documents import Document
 
 from langchain.document_loaders import ConfluenceLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.text_splitter import MarkdownHeaderTextSplitter
 
-class DataLoader():
+
+class DataLoader:
     """Create, load, save the DB using the confluence Loader"""
+
     def __init__(
         self,
         confluence_url=CONFLUENCE_SPACE_URL,
         username=CONFLUENCE_USERNAME,
         api_key=CONFLUENCE_API_KEY,
         space_key=CONFLUENCE_SPACE_KEY,
-        persist_directory=PERSIST_DIRECTORY
+        persist_directory=PERSIST_DIRECTORY,
     ):
 
         print("DataLoader")
@@ -32,15 +41,13 @@ class DataLoader():
     def load_from_confluence_loader(self):
         """Load HTML files from Confluence"""
         loader = ConfluenceLoader(
-            url=self.confluence_url,
-            username=self.username,
-            api_key=self.api_key
+            url=self.confluence_url, username=self.username, api_key=self.api_key
         )
 
         docs = loader.load(
             space_key=self.space_key,
             # include_attachments=True,
-            )
+        )
         return docs
 
     def split_docs(self, docs):
@@ -51,14 +58,19 @@ class DataLoader():
             ("###", "Sous-titre 2"),
         ]
 
-        markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+        markdown_splitter = MarkdownHeaderTextSplitter(
+            headers_to_split_on=headers_to_split_on
+        )
 
         # Split based on markdown and add original metadata
         md_docs = []
+        qa_translator = DoctranTextTranslator(language="french")
+
         for doc in docs:
-            md_doc = markdown_splitter.split_text(doc.page_content)
+            translated_document = qa_translator.translate(doc)
+            md_doc = markdown_splitter.split_text(translated_document.page_content)
             for i in range(len(md_doc)):
-                md_doc[i].metadata = md_doc[i].metadata | doc.metadata
+                md_doc[i].metadata = md_doc[i].metadata | translated_document.metadata
             md_docs.extend(md_doc)
 
         # RecursiveTextSplitter
@@ -66,7 +78,7 @@ class DataLoader():
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=1024,
             chunk_overlap=50,
-            separators=["\n\n", "\n", "(?<=\. )", " ", ""]
+            separators=["\n\n", "\n", "(?<=\. )", " ", ""],
         )
 
         splitted_docs = splitter.split_documents(md_docs)
@@ -75,16 +87,19 @@ class DataLoader():
     def save_to_db(self, splitted_docs, embeddings):
         """Save chunks to Chroma DB"""
         from langchain.vectorstores import Chroma
-        db = Chroma.from_documents(splitted_docs, embeddings, persist_directory=self.persist_directory)
+
+        db = Chroma.from_documents(
+            splitted_docs, embeddings, persist_directory=self.persist_directory
+        )
         db.persist()
         return db
 
     def load_from_db(self, embeddings):
         """Loader chunks to Chroma DB"""
         from langchain.vectorstores import Chroma
+
         db = Chroma(
-            persist_directory=self.persist_directory,
-            embedding_function=embeddings
+            persist_directory=self.persist_directory, embedding_function=embeddings
         )
         return db
 

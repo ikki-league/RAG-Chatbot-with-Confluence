@@ -7,8 +7,9 @@ from langchain.prompts import PromptTemplate
 from langchain.embeddings import OpenAIEmbeddings
 
 
-class HelpDesk():
+class HelpDesk:
     """Create the necessary objects to create a QARetrieval chain"""
+
     def __init__(self, new_db=True):
 
         self.new_db = new_db
@@ -25,15 +26,14 @@ class HelpDesk():
         self.retriever = self.db.as_retriever()
         self.retrieval_qa_chain = self.get_retrieval_qa()
 
-
     def get_template(self):
         template = """
         Given this text extracts:
         -----
         {context}
-        at the end of the text, please add "voili voilou"
+        
         -----
-        Please answer with to the following question:
+        Please answer with to the following question using only what is given in the text extracts:
         Question: {question}
         Helpful Answer:
         """
@@ -41,13 +41,12 @@ class HelpDesk():
 
     def get_prompt(self) -> PromptTemplate:
         prompt = PromptTemplate(
-            template=self.template,
-            input_variables=["context", "question"]
+            template=self.template, input_variables=["context", "question"]
         )
         return prompt
 
     def get_embeddings(self) -> OpenAIEmbeddings:
-        embeddings = OpenAIEmbeddings()
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
         return embeddings
 
     def get_llm(self):
@@ -61,7 +60,7 @@ class HelpDesk():
             chain_type="stuff",
             retriever=self.retriever,
             return_source_documents=True,
-            chain_type_kwargs=chain_type_kwargs
+            chain_type_kwargs=chain_type_kwargs,
         )
         return qa
 
@@ -83,7 +82,9 @@ class HelpDesk():
 
         if sources:
             k = min(k, len(sources))
-            distinct_sources = list(zip(*collections.Counter(sources).most_common()))[0][:k]
+            distinct_sources = list(zip(*collections.Counter(sources).most_common()))[
+                0
+            ][:k]
             distinct_sources_str = "  \n- ".join(distinct_sources)
 
         if len(distinct_sources) == 1:
