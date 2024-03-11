@@ -23,3 +23,6 @@ clickhouse-connect  # MyScale
 atlassian-python-api
 lxml
 markdownify
+
+#evaluate
+rapidfuzz
