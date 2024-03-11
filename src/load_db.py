@@ -1,6 +1,7 @@
 import sys
 import logging
 import shutil
+import tiktoken
 
 sys.path.append("../")
 from config import (
@@ -8,6 +9,7 @@ from config import (
     CONFLUENCE_SPACE_KEY,
     CONFLUENCE_USERNAME,
     CONFLUENCE_API_KEY,
+    OPEN_AI_API_KEY,
     PERSIST_DIRECTORY,
 )
 from langchain_community.document_transformers import DoctranTextTranslator
@@ -16,6 +18,7 @@ from langchain_core.documents import Document
 from langchain.document_loaders import ConfluenceLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.text_splitter import MarkdownHeaderTextSplitter
+from doctran import Doctran
 
 
 class DataLoader:
@@ -28,6 +31,7 @@ class DataLoader:
         api_key=CONFLUENCE_API_KEY,
         space_key=CONFLUENCE_SPACE_KEY,
         persist_directory=PERSIST_DIRECTORY,
+        openai_api_key=OPEN_AI_API_KEY,
     ):
 
         print("DataLoader")
@@ -37,6 +41,7 @@ class DataLoader:
         self.api_key = api_key
         self.space_key = space_key
         self.persist_directory = persist_directory
+        self.openai_api_key = openai_api_key
 
     def load_from_confluence_loader(self):
         """Load HTML files from Confluence"""
@@ -47,6 +52,8 @@ class DataLoader:
         docs = loader.load(
             space_key=self.space_key,
             # include_attachments=True,
+            limit=50,
+            max_pages=50,
         )
         return docs
 
@@ -64,13 +71,17 @@ class DataLoader:
 
         # Split based on markdown and add original metadata
         md_docs = []
-        qa_translator = DoctranTextTranslator(language="french")
+
+        doctran = Doctran(
+            openai_api_key=self.openai_api_key, openai_model="gpt-3.5-turbo"
+        )
 
         for doc in docs:
-            translated_document = qa_translator.translate(doc)
-            md_doc = markdown_splitter.split_text(translated_document.page_content)
+            document = doctran.parse(content=str(doc))
+            document = document.translate(language="french").execute()
+            md_doc = markdown_splitter.split_text(document.transformed_content)
             for i in range(len(md_doc)):
-                md_doc[i].metadata = md_doc[i].metadata | translated_document.metadata
+                md_doc[i].metadata = md_doc[i].metadata 
             md_docs.extend(md_doc)
 
         # RecursiveTextSplitter
