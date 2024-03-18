@@ -1,7 +1,7 @@
 import sys
 import load_db
 import collections
-from langchain_community import Ollama, OpenAI
+from langchain_community.llms import Ollama, OpenAI
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain.embeddings import OpenAIEmbeddings, OllamaEmbeddings
