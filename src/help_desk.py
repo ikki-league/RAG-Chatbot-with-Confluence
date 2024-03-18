@@ -1,10 +1,12 @@
 import sys
 import load_db
 import collections
-from langchain.llms import OpenAI, Ollama
+from langchain_community import Ollama, OpenAI
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain.embeddings import OpenAIEmbeddings, OllamaEmbeddings
+from langchain.callbacks.manager import CallbackManager
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
 
 class HelpDesk:
@@ -60,7 +62,7 @@ class HelpDesk:
         return embeddings
     
     def get_llmOllama(self):
-        llm = Ollama(model="mistral")
+        llm = Ollama(model="mistral", callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]))
         
     def get_llmOpenAi(self):
         llm = OpenAI()
