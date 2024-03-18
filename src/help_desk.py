@@ -33,7 +33,7 @@ class HelpDesk:
         {context}
         
         -----
-        Please answer with to the following question using only what is given in the text extracts:
+        Please provide the most reliable response possible, and if you're not sure about your answer, say 'Sorry, I don't know'.
         Question: {question}
         Helpful Answer:
         """

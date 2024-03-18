@@ -16,9 +16,7 @@ from langchain_community.document_transformers import DoctranTextTranslator
 from langchain_core.documents import Document
 
 from langchain.document_loaders import ConfluenceLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.text_splitter import MarkdownHeaderTextSplitter
-from doctran import Doctran
+from langchain.text_splitter import TokenTextSplitter,CharacterTextSplitter
 
 
 class DataLoader:
@@ -65,35 +63,13 @@ class DataLoader:
             ("###", "Sous-titre 2"),
         ]
 
-        markdown_splitter = MarkdownHeaderTextSplitter(
-            headers_to_split_on=headers_to_split_on
-        )
+        text_splitter = CharacterTextSplitter(chunk_size=100, chunk_overlap=0)
+        texts = text_splitter.split_documents(docs)
+        text_splitter = TokenTextSplitter(chunk_size=1000, chunk_overlap=10, encoding_name="cl100k_base")  # This the encoding for text-embedding-ada-002
+        texts = text_splitter.split_documents(texts)        
 
-        # Split based on markdown and add original metadata
-        md_docs = []
-
-        doctran = Doctran(
-            openai_api_key=self.openai_api_key, openai_model="gpt-3.5-turbo"
-        )
-
-        for doc in docs:
-            document = doctran.parse(content=str(doc))
-            document = document.translate(language="french").execute()
-            md_doc = markdown_splitter.split_text(document.transformed_content)
-            for i in range(len(md_doc)):
-                md_doc[i].metadata = md_doc[i].metadata 
-            md_docs.extend(md_doc)
-
-        # RecursiveTextSplitter
-        # Chunk size big enough
-        splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1024,
-            chunk_overlap=50,
-            separators=["\n\n", "\n", "(?<=\. )", " ", ""],
-        )
-
-        splitted_docs = splitter.split_documents(md_docs)
-        return splitted_docs
+        
+        return texts
 
     def save_to_db(self, splitted_docs, embeddings):
         """Save chunks to Chroma DB"""
