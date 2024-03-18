@@ -1,10 +1,10 @@
 import sys
 import load_db
 import collections
-from langchain.llms import OpenAI
+from langchain.llms import OpenAI, Ollama
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings import OpenAIEmbeddings, OllamaEmbeddings
 
 
 class HelpDesk:
@@ -45,11 +45,24 @@ class HelpDesk:
         )
         return prompt
 
-    def get_embeddings(self) -> OpenAIEmbeddings:
+    def get_embeddings(self):
+            return self.get_embeddingsOllama()
+        
+    def get_llm(self):
+            return self.get_llmOllama()
+        
+    def get_embeddingsOpenAI(self) -> OpenAIEmbeddings:
         embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
         return embeddings
-
-    def get_llm(self):
+    
+    def get_embeddingsOllama(self) -> OllamaEmbeddings:
+        embeddings = OllamaEmbeddings(model="mistral")
+        return embeddings
+    
+    def get_llmOllama(self):
+        llm = Ollama(model="mistral")
+        
+    def get_llmOpenAi(self):
         llm = OpenAI()
         return llm
 
